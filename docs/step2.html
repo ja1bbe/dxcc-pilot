@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pythonとファイルの準備（2／6）｜DXCC代行ワッチの構築手順</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="site"><a href="index.html">DXCC代行ワッチ（DXCC水先案内人）の構築手順</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
+<nav aria-label="手順の進み具合"><ol class="meter"><li class="done"><a href="index.html"><span>全体像</span></a></li><li class="now"><a href="step2.html" aria-current="step"><span>Python</span></a></li><li class=""><a href="step3.html"><span>設定とログ</span></a></li><li class=""><a href="step4.html"><span>Gmail</span></a></li><li class=""><a href="step5.html"><span>起動</span></a></li><li class=""><a href="step6.html"><span>通知の見方</span></a></li></ol></nav>
+</header>
+<main>
+<p class="step">2／6</p>
+<h1>Pythonとファイルの準備</h1>
+
+<p class="lead">スクリプトを動かすための Python を入れ、スクリプト一式と国別データをひとつのフォルダにそろえます。</p>
+
+<h2>Python を入れる</h2>
+<ol>
+<li>Windowsキーを押して <code>cmd</code> と入力し、「コマンドプロンプト」を開きます。</li>
+<li>次のコマンドを貼り付けて、Enterキーを押します。</li></ol>
+<div class="cmd"><pre>python --version</pre></div>
+<p>「Python 3.13.1」のように数字まで表示されれば、入っています。何も表示されない、または Microsoft Store が開いた場合は、まだ入っていません。</p>
+<p>入れる場合は、Microsoft Store で「Python 3.13」を検索し、<strong>発行元が「Python Software Foundation」</strong>であることを確かめてから入手します。入れ終わったらコマンドプロンプトを開き直し、もう一度 <code>python --version</code> で確かめます。</p>
+
+<h3>追加のパッケージを入れる</h3>
+<p>グラフを描く <code>matplotlib</code> と、安全な通信のための <code>truststore</code> を入れます。</p>
+<div class="cmd"><pre>python -m pip install matplotlib truststore</pre></div>
+<p>最後に「Successfully installed」と表示されれば完了です。</p>
+
+<h2>スクリプト一式を入手する</h2>
+<ol>
+<li><a href="https://github.com/ja1bbe/dxcc-pilot/archive/refs/heads/main.zip">スクリプト一式（ZIPファイル）</a>をダウンロードします。</li>
+<li>ダウンロードした <code>dxcc-pilot-main.zip</code> を右クリックし、「すべて展開」を選びます。</li>
+<li>展開してできた <code>dxcc-pilot-main</code> フォルダを、<code>C:\</code> の直下に移し、名前を <code>dxcc-pilot</code> に変えます。</li></ol>
+<p>この説明では、フォルダを <code>C:\dxcc-pilot</code> に置いたものとして進めます。別の場所に置いた場合は、以降のコマンドの <code>C:\dxcc-pilot</code> を読み替えてください。</p>
+
+<h2>国別データ（Big CTY）を置く</h2>
+<p>コールサインからエンティティを判定するために、AD1C Jim Reisert 氏が公開している <strong>Big CTY</strong> を使います。</p>
+<ol>
+<li><a href="https://www.country-files.com/">country-files.com</a> の最新の記事から、「bigcty-年月日.zip」をダウンロードして展開します。</li>
+<li>中にある <code>cty.dat</code> と <code>cty.csv</code> の2つを、<code>C:\dxcc-pilot\common</code> にコピーします。</li>
+<li>コピーした2つの名前を、それぞれ <code>cty_latest.dat</code>、<code>cty_latest.csv</code> に変えます。</li></ol>
+<div class="warn"><p><strong>名前を変える理由</strong></p><p>HAMLOG のフォルダには、HAMLOG 自身が使う <code>CTY.DAT</code> があります。Windows はファイル名の大文字と小文字を区別しないため、同じ名前のままだと取り違えのもとになります。Big CTY は数か月ごとに新しくなるので、ときどき同じ手順で入れ替えてください。</p></div>
+<p>名前を変えるときに拡張子が見えない場合は、エクスプローラーの「表示」→「表示」→「ファイル名拡張子」にチェックを入れます。</p>
+
+<h2>フォルダの中身</h2>
+<div class="cmd tree"><pre>C:\dxcc-pilot
+├─ dxcc_notify.py        通知スクリプトの本体
+├─ notify_html.py        通知メール（HTML版）を作る
+├─ hamlog_reader.py      HAMLOG の交信記録を読む
+├─ hamlog_to_lotw.py     LoTW 提出用（必要な方のみ）
+├─ dxcc_settings.py      設定ファイルを読む
+├─ settings.ini          自局の設定（画面3で書きます）
+├─ start_dxcc.bat        起動用ファイル（画面5で書きます）
+├─ common
+│   ├─ cty_latest.dat    ← 今置いたもの
+│   └─ cty_latest.csv    ← 今置いたもの
+└─ logs</pre></div>
+
+<div class="check"><h2>ここまでの確認</h2><ul>
+<li><code>python --version</code> で、3.10 以上の版が表示される。</li>
+<li><code>C:\dxcc-pilot\common</code> に <code>cty_latest.dat</code> と <code>cty_latest.csv</code> がある。</li></ul></div>
+
+<div class="nav"><a class="btn back" href="index.html">前の画面：全体像と準備するもの</a><a class="btn next" href="step3.html">次の画面：自局の設定とログの確認</a></div>
+</main>
+<footer>CQ ham radio 2027年1月号「FT8で未交信DXCCをスマートフォンに知らせる」関連ページ　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
+</div>
+<script src="copy.js"></script>
+</body>
+</html>

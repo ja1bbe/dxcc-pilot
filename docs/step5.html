@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WSJT-X・JTAlertとつないで起動する（5／6）｜DXCC代行ワッチの構築手順</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="site"><a href="index.html">DXCC代行ワッチ（DXCC水先案内人）の構築手順</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
+<nav aria-label="手順の進み具合"><ol class="meter"><li class="done"><a href="index.html"><span>全体像</span></a></li><li class="done"><a href="step2.html"><span>Python</span></a></li><li class="done"><a href="step3.html"><span>設定とログ</span></a></li><li class="done"><a href="step4.html"><span>Gmail</span></a></li><li class="now"><a href="step5.html" aria-current="step"><span>起動</span></a></li><li class=""><a href="step6.html"><span>通知の見方</span></a></li></ol></nav>
+</header>
+<main>
+<p class="step">5／6</p>
+<h1>WSJT-X・JTAlertとつないで起動する</h1>
+
+<p class="lead">WSJT-X のデコード結果を、JTAlert と通知スクリプトの両方が受け取れるようにし、起動用のファイルを作って、本番どおりに動かします。</p>
+
+<h2>WSJT-X の送り先をマルチキャストにする</h2>
+<p>WSJT-X の初期設定（127.0.0.1）では、デコード結果を1つのソフトにしか渡せません。複数のソフトが同時に受け取れる「マルチキャスト」に変えます。WSJT-X の「設定」→「Reporting」タブで、次のように設定します。</p>
+<div class="tbl"><table>
+<tr><th>項目</th><th>設定値</th></tr>
+<tr><td>UDPサーバー</td><td><code>239.255.0.1</code></td></tr>
+<tr><td>UDPサーバーのポート番号</td><td><code>2237</code>（変更なし）</td></tr>
+<tr><td>データ送出インターフェイス</td><td><code>loopback_0</code></td></tr>
+<tr><td>マルチキャストTTL</td><td><code>1</code></td></tr>
+</table></div>
+<p>JTAlert は起動時に WSJT-X の設定を読み込むので、JTAlert 側でアドレスを設定する必要はありません。同じ PC で2つ目の WSJT-X を動かす場合は、そちらを <code>239.255.0.2</code>・<code>2238</code> のように分けます。</p>
+<div class="warn"><p><strong>設定を変えたあとは、JTAlert を完全に終了する</strong></p><p>JTAlert を閉じても、画面右下のタスクトレイに残っていることがあります。そのまま起動し直すと「2nd Instance」になり、WSJT-X の起動を待ったまま止まってしまいます。タスクトレイも含めてすべて終了してから、起動し直してください。</p></div>
+
+<h2>JTAlert の判定をバンドごとにする</h2>
+<p>JTAlert の「Settings」→「Wanted DXCC」の「Tracking」を「By Individual Band」（バンドごと）にします。通知スクリプトと同じ考え方にそろえておくと、JTAlert の画面の色分けと通知の判断が食い違いません。</p>
+
+<h2>起動用のファイルを書き換える</h2>
+<p><code>C:\dxcc-pilot\start_dxcc.bat</code> を右クリックし、「編集」（または「プログラムから開く」→「メモ帳」）で開きます。書き換えるのは次の行だけです。</p>
+<div class="cmd"><pre>set HAMLOG=C:\Hamlog\HAMLOG.hdb</pre></div>
+<p>画面3で確かめた HAMLOG のデータファイルの場所に書き換えて、上書き保存します。WSJT-X の設定を上の表と違う値にした場合は、<code>--group</code> と <code>--port</code> も同じ値にします。</p>
+<p>デスクトップから起動できるよう、<code>start_dxcc.bat</code> を右クリックし、「その他のオプションを確認」→「送る」→「デスクトップ (ショートカットを作成)」を選びます。</p>
+
+<h2>起動の順番</h2>
+<p>起動は、必ず次の順番にします。受信機を後から起動すると、WSJT-X に受信音が届かないことがあります。</p>
+<p><strong>SDRconnect または無線機 → WSJT-X → JTAlert → start_dxcc.bat</strong></p>
+
+<h2>受信できているか確かめる</h2>
+<p>初めての起動では、デコードを受け取れているかを画面で確かめます。コマンドプロンプトで次のように実行します（HAMLOG の場所は書き換えてください）。</p>
+<div class="cmd"><pre>cd /d C:\dxcc-pilot
+python dxcc_notify.py --site home --debug-udp --hamlog "C:\Hamlog\HAMLOG.hdb"</pre></div>
+<p>起動すると、次のように表示されます（数字は例です）。</p>
+<div class="cmd out"><pre>dxcc-pilot 版 1.0.0
+自局のコールサイン: JA1ABC
+listening 239.255.0.1:2237  bands=['10m', '12m', ...]
+log total: 1520 entity-band pairs
+開始のメールを送りました</pre></div>
+<p>WSJT-X がデコードするたびに、その行が画面に流れれば、すべての経路がつながっています。同時に、スマートフォンには開始（START）のメールが届きます。確かめられたら Ctrl＋C で止めます。止めると、終了（STOP）のメールが届きます。</p>
+<p>以後は、<code>--debug-udp</code> を付けずに、デスクトップのショートカットから起動します。</p>
+<div class="note"><p><strong>「0.0.0.0 で参加できませんでした」と表示されたとき</strong></p><p>スクリプトは2つの受信経路を用意しており、使わない方の案内です。もう一方の経路（ループバック）で受信できていれば、問題ありません。</p>
+<p>初めての起動で Windows のファイアウォールの確認画面が出た場合は、「プライベートネットワーク」での通信を許可してください。</p></div>
+
+<div class="check"><h2>ここまでの確認</h2><ul>
+<li>起動画面に「listening」と表示され、デコードの行が流れる。</li>
+<li>開始（START）のメールと、Ctrl＋C で止めたときの終了（STOP）のメールが届いた。</li></ul></div>
+
+<div class="nav"><a class="btn back" href="step4.html">前の画面：Gmailの準備</a><a class="btn next" href="step6.html">次の画面：通知の見方とよくある質問</a></div>
+</main>
+<footer>CQ ham radio 2027年1月号「FT8で未交信DXCCをスマートフォンに知らせる」関連ページ　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
+</div>
+<script src="copy.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>自局の設定とログの確認（3／6）｜DXCC代行ワッチの構築手順</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="site"><a href="index.html">DXCC代行ワッチ（DXCC水先案内人）の構築手順</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
+<nav aria-label="手順の進み具合"><ol class="meter"><li class="done"><a href="index.html"><span>全体像</span></a></li><li class="done"><a href="step2.html"><span>Python</span></a></li><li class="now"><a href="step3.html" aria-current="step"><span>設定とログ</span></a></li><li class=""><a href="step4.html"><span>Gmail</span></a></li><li class=""><a href="step5.html"><span>起動</span></a></li><li class=""><a href="step6.html"><span>通知の見方</span></a></li></ol></nav>
+</header>
+<main>
+<p class="step">3／6</p>
+<h1>自局の設定とログの確認</h1>
+
+<p class="lead">自局のコールサインとメールアドレスを設定ファイルに書き、スクリプトが HAMLOG の交信記録を正しく読めるかを確かめます。</p>
+
+<h2>settings.ini を書く</h2>
+<p><code>C:\dxcc-pilot\settings.ini</code> を右クリックし、「プログラムから開く」→「メモ帳」で開きます。「＜＞」の部分を、ご自分の値に書き換えます。</p>
+<div class="cmd tree"><pre>[station]
+my_call = JA1ABC
+mail_from = ja1abc.dxcc@gmail.com
+mail_to = 受信用のアドレス
+my_grid = PM85
+lotw_user =
+lotw_cert_start =
+
+[sites]
+home = 自宅</pre></div>
+<div class="tbl"><table>
+<tr><th>項目</th><th>書く内容</th></tr>
+<tr><td><code>my_call</code></td><td>自局のコールサイン。交信済みの判定には、ここに書いたコールでの交信だけを数えます。</td></tr>
+<tr><td><code>mail_from</code></td><td>通知を送るGmailのアドレス（画面4で作るもの）。先に決めておいて構いません。</td></tr>
+<tr><td><code>mail_to</code></td><td>通知を受け取るアドレス。送信用とは<strong>別のアドレス</strong>にします。</td></tr>
+<tr><td><code>my_grid</code></td><td>自局のグリッドロケータ（4桁か6桁）。書くと、通知にアンテナを向ける目安の方位が付きます。空けておいても動きます。</td></tr>
+<tr><td><code>lotw_user</code></td><td>LoTW を使う方だけ（画面6で説明します）。今は空けておきます。</td></tr>
+<tr><td><code>[sites]</code></td><td>このPCの名前。通知メールの件名に入ります。1台だけなら、このままで構いません。</td></tr>
+</table></div>
+<p>保存するときは「名前を付けて保存」で、下の「エンコード」が <strong>UTF-8</strong> になっていることを確かめます（Windows 11 のメモ帳は、通常 UTF-8 で保存されます）。パスワードはこのファイルには書きません。</p>
+
+<h3>複数のコールサインの交信を合算するとき</h3>
+<p>以前のコールサインや移動運用のコールでの交信も合算する場合は、<code>my_call = JA1ABC, JA1ABC/1</code> のようにカンマで区切って並べます。ARRL の DXCC では、本人が免許を受けたコールで、同じエンティティ（日本）から運用した交信を合算できます。他局の設備でその局のコールを使った運用（ゲスト運用）は、本人の実績になりません。ご自身の状況は、ARRL の最新の DXCC ルールで確かめてください。</p>
+<p>HAMLOG の備考に <code>%GestOP:</code> の記録がある交信や、送信したコールサイン（<code>$C=</code>）が自局と違う交信は、ゲスト運用として交信済みに数えません。</p>
+
+<h2>HAMLOG の交信記録が読めるか確かめる</h2>
+<p>コマンドプロンプトで、次の2行を順に実行します。2行目の HAMLOG のデータファイルの場所は、ご自分の環境に合わせて書き換えてください。</p>
+<div class="cmd"><pre>cd /d C:\dxcc-pilot
+python hamlog_reader.py "C:\Hamlog\HAMLOG.hdb"</pre></div>
+<p>次のように、件数と期間が表示されます（数字は例です）。交信の中身は表示しません。</p>
+<div class="cmd out"><pre>自局のコールサイン: JA1ABC
+読み込んだ交信: 10215件（自局 10170件、ゲスト運用など 45件）
+期間(UTC): 2003-09-06 〜 2026-12-20
+記録の時刻: {'JST': 6120, 'UTC': 4095}
+...
+点検: {'date_unknown': 3, 'deleted': 12, 'bad_band': 5}</pre></div>
+<ul>
+<li><strong>読み込んだ交信</strong>の件数が、HAMLOG に記録されている交信の数とほぼ合うことを確かめます（HAMLOG で削除した記録は数えません）。</li>
+<li><strong>期間</strong>が、最初の交信から最近の交信までになっていることを確かめます。</li>
+<li><strong>bad_band</strong> は、周波数の欄からバンドを判定できなかった件数です。入力の誤りがあると数が増えます。数件なら、そのまま進めて構いません。</li></ul>
+<div class="warn"><p><strong>件数が大きく違うとき</strong></p><p>HAMLOG のデータファイルの読み方は、公式の仕様ではなく、筆者の局のデータで確かめたものです。件数や期間が大きく違う場合は、この先へ進まず、表示された内容を添えてお問い合わせください（画面6）。</p></div>
+
+<h3>ADIF形式のログを使う場合</h3>
+<p>HAMLOG を使っていない場合や、ほかのソフトの交信も合わせたい場合は、ADIF形式のファイル（拡張子 .adi）を <code>C:\dxcc-pilot\logs</code> に置きます。HAMLOG と両方ある場合は、同じ交信を1件として合わせて判定します。</p>
+
+<div class="check"><h2>ここまでの確認</h2><ul>
+<li><code>settings.ini</code> に自局のコールサインと2つのメールアドレスを書き、UTF-8 で保存した。</li>
+<li><code>hamlog_reader.py</code> の件数と期間が、HAMLOG の記録とほぼ合っている。</li></ul></div>
+
+<div class="nav"><a class="btn back" href="step2.html">前の画面：Pythonとファイルの準備</a><a class="btn next" href="step4.html">次の画面：Gmailの準備</a></div>
+</main>
+<footer>CQ ham radio 2027年1月号「FT8で未交信DXCCをスマートフォンに知らせる」関連ページ　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
+</div>
+<script src="copy.js"></script>
+</body>
+</html>

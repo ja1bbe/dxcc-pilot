@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gmailの準備（4／6）｜DXCC代行ワッチの構築手順</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="site"><a href="index.html">DXCC代行ワッチ（DXCC水先案内人）の構築手順</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
+<nav aria-label="手順の進み具合"><ol class="meter"><li class="done"><a href="index.html"><span>全体像</span></a></li><li class="done"><a href="step2.html"><span>Python</span></a></li><li class="done"><a href="step3.html"><span>設定とログ</span></a></li><li class="now"><a href="step4.html" aria-current="step"><span>Gmail</span></a></li><li class=""><a href="step5.html"><span>起動</span></a></li><li class=""><a href="step6.html"><span>通知の見方</span></a></li></ol></nav>
+</header>
+<main>
+<p class="step">4／6</p>
+<h1>Gmailの準備</h1>
+
+<p class="lead">通知メールを送るための Gmail アカウントを準備し、パスワードを PC に登録して、テストメールを送ります。</p>
+
+<h2>通知専用のアカウントを作る</h2>
+<p>普段使っているアカウントとは別に、通知専用の Gmail アカウントを作ることをおすすめします。このあと発行する「アプリパスワード」は、そのアカウントのメールを外部から操作できる強い権限を持つためです。専用のアカウントに分けておけば、万一 PC からパスワードが漏れても、普段のアカウントに影響が及びません。</p>
+<p>作ったアドレスを、<code>settings.ini</code> の <code>mail_from</code> に書きます。</p>
+
+<h2>2段階認証を有効にする</h2>
+<p>アプリパスワードを発行するには、2段階認証が有効になっている必要があります。通知専用のアカウントで <a href="https://myaccount.google.com/">myaccount.google.com</a> を開き、「セキュリティ」→「2段階認証プロセス」を開いて有効にします。</p>
+<p>「再設定用の電話番号」の登録画面と取り違えやすいので注意してください。「2段階認証プロセス」の欄に「○時○分より有効」のように表示されれば、正しく設定できています。</p>
+
+<h2>アプリパスワードを発行する</h2>
+<p><a href="https://myaccount.google.com/apppasswords">myaccount.google.com/apppasswords</a> を開き、アプリ名（例：dxcc_notify）を入力して作成します。表示される16文字は、画面を閉じると二度と表示されません。必ず控えておきます。</p>
+
+<h2>パスワードを PC に登録する</h2>
+<p>パスワードをファイルやコマンドに書くと、画面や履歴に残ってしまいます。そこで「環境変数」として PC に登録します。コマンドプロンプトで次のように入力します。16文字は、空白を入れずに続けて入力します。</p>
+<div class="cmd"><pre>setx DXCC_MAIL_PASS "16文字のアプリパスワード"</pre></div>
+<p>「成功: 指定した値は保存されました。」と表示されたら、<strong>コマンドプロンプトをいったん閉じて開き直し</strong>、次のコマンドで「登録OK」と表示されることを確かめます。このコマンドは、パスワードそのものを画面に表示しません。</p>
+<div class="cmd"><pre>if defined DXCC_MAIL_PASS echo 登録OK</pre></div>
+
+<h2>テストメールを送る</h2>
+<div class="cmd"><pre>cd /d C:\dxcc-pilot
+python dxcc_notify.py --test</pre></div>
+<p>約30秒後に、<code>mail_to</code> のアドレスに「[DXCC] テスト通知」が届けば成功です。</p>
+<div class="note"><p><strong>送信用と受信用を別のアドレスにする理由</strong></p><p>自分から自分宛てに送ったメールは、スマートフォンの通知が鳴らない場合があるためです。</p></div>
+<h3>届かないとき</h3>
+<ul>
+<li>「アプリパスワードが見つかりません」と表示される：コマンドプロンプトを開き直してから実行したか、確かめてください。</li>
+<li>「メールアドレスが設定されていません」と表示される：<code>settings.ini</code> の <code>mail_from</code> と <code>mail_to</code> に「＜＞」が残っていないか確かめてください。</li>
+<li>送信のエラーが表示される：スクリプトは 465番と587番の2つの方法で送信を試みます。両方とも失敗する場合は、セキュリティソフトがメールの送信を止めていないか確かめてください。</li></ul>
+
+<div class="check"><h2>ここまでの確認</h2><ul>
+<li>「登録OK」と表示される。</li>
+<li>テスト通知がスマートフォンに届いた。</li></ul></div>
+
+<div class="nav"><a class="btn back" href="step3.html">前の画面：自局の設定とログの確認</a><a class="btn next" href="step5.html">次の画面：WSJT-X・JTAlertとつないで起動する</a></div>
+</main>
+<footer>CQ ham radio 2027年1月号「FT8で未交信DXCCをスマートフォンに知らせる」関連ページ　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
+</div>
+<script src="copy.js"></script>
+</body>
+</html>

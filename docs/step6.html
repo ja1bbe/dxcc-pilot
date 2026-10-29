@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>通知の見方とよくある質問（6／6）｜DXCC代行ワッチの構築手順</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="site"><a href="index.html">DXCC代行ワッチ（DXCC水先案内人）の構築手順</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
+<nav aria-label="手順の進み具合"><ol class="meter"><li class="done"><a href="index.html"><span>全体像</span></a></li><li class="done"><a href="step2.html"><span>Python</span></a></li><li class="done"><a href="step3.html"><span>設定とログ</span></a></li><li class="done"><a href="step4.html"><span>Gmail</span></a></li><li class="done"><a href="step5.html"><span>起動</span></a></li><li class="now"><a href="step6.html" aria-current="step"><span>通知の見方</span></a></li></ol></nav>
+</header>
+<main>
+<p class="step">6／6</p>
+<h1>通知の見方とよくある質問</h1>
+
+<p class="lead">届いた通知の読み方と、使い方に合わせた調整、よくある質問をまとめました。</p>
+
+<h2>件名の印</h2>
+<p>通知メールの件名には、次の印が付きます。スマートフォンの通知を見ただけで、急ぐべきかどうかがわかります。</p>
+<div class="tbl"><table>
+<tr><th>件名の印</th><th>意味</th></tr>
+<tr><td>🔴 全バンド初</td><td>どのバンドでもまだ交信していないエンティティ。最初の1回のデコードで知らせます。</td></tr>
+<tr><td>🟢 バンドニュー</td><td>ほかのバンドでは交信済みで、このバンドでは未交信のエンティティ。</td></tr>
+<tr><td>🔴🟡 全バンド初・ペディション</td><td>全バンド初で、しかも今運用中のDXペディション。</td></tr>
+<tr><td>🟡🟢 バンドニュー・ペディション</td><td>バンドニューで、今運用中のDXペディション。</td></tr>
+<tr><td>🟡 ペディション</td><td>このバンドでは交信済みのDXペディション。本文に、まだ交信していないバンドを示します。</td></tr>
+<tr><td>他局が呼び出し中</td><td>自局では受信できていないが、日本の局が呼んでいる相手が未交信のエンティティ。</td></tr>
+<tr><td>要確認</td><td>相手のグリッドが、判定したエンティティの位置から大きく離れている。DXクラスタなどで確かめてください。</td></tr>
+</table></div>
+<figure class="shot"><img src="img/notify-called.png" alt="他局が呼び出し中の通知の例。日本の局が呼んでいるベネズエラのYV6BXNを知らせている。" width="640" loading="lazy"><figcaption>「他局が呼び出し中」の通知の例。自局では受信できていなくても、日本の局が呼んでいる相手が未交信のエンティティなら知らせます。その後に自局でも受信すると、改めて知らせます。</figcaption></figure>
+<p>全バンド初以外は、偽のデコードによる誤報を防ぐため、同じ局を2回デコードしてから知らせます。同じ局・同じバンドの通知は、UTC の1日に1回までです。</p>
+
+<h2>開始と終了のメール</h2>
+<p>起動すると開始（START）のメールが届き、バンドごとのDXCCの交信数、現在の宇宙天気、3か月以内のDXペディション予定が載ります。止めると終了（STOP）のメールが届き、運用中に叶った交信と、受信した未交信局の一覧が載ります。</p>
+<p>スクリプトの画面を Ctrl＋C で止めても、画面を閉じても、終了のメールを送ります。</p>
+<div class="shots">
+<figure class="shot"><img src="img/start-1.png" alt="開始のメールの1画面目。交信済みのエンティティとバンドの組み合わせの数と、バンド別のDXCCの交信数と確認数の棒グラフ。" width="640" loading="lazy"><figcaption>開始のメール（1）バンド別のDXCC。</figcaption></figure>
+<figure class="shot"><img src="img/start-2.png" alt="開始のメールの2画面目。過去24時間のBz、太陽風速度、Kp指数のグラフと、現在の宇宙天気の値。" width="640" loading="lazy"><figcaption>開始のメール（2）宇宙天気。</figcaption></figure>
+<figure class="shot"><img src="img/start-3.png" alt="開始のメールの3画面目。3か月以内のDXペディション予定と、バンドごとの交信済み・未交信の表示。" width="640" loading="lazy"><figcaption>開始のメール（3）DXペディション予定。</figcaption></figure>
+</div>
+<figure class="shot"><img src="img/stop.png" alt="終了のメールの例。運用時間、未交信局の数、この運用中に叶った交信、受信した未交信局の一覧。" width="640" loading="lazy"><figcaption>終了のメールの例。この運用中に叶った交信と、受信した未交信局が載ります。</figcaption></figure>
+
+<h2>宇宙天気の知らせ</h2>
+<p>運用中に宇宙天気が大きく変わったときも、メールで知らせます。同じ種類の知らせは、3時間に1回までです。</p>
+<div class="tbl"><table>
+<tr><th>件名</th><th>知らせる条件</th></tr>
+<tr><td>悪化の予告</td><td>太陽風の磁場（Bz）の30分平均が −10 nT より強く南向きで、しかも太陽風が 500 km/s 以上のとき。地磁気が乱れる前触れで、極域の近くを通る経路が悪くなる可能性があります。</td></tr>
+<tr><td>好転</td><td>Kp 指数が 4 以上の乱れから 2 以下に下がり、Bz が北向き、太陽風が 450 km/s 未満になったとき。</td></tr>
+<tr><td>プロトン現象</td><td>太陽放射線（Sスケール）が上がったとき。</td></tr>
+</table></div>
+<figure class="shot"><img src="img/alert-worse.png" alt="宇宙天気の悪化の予告の例。強い南向きのBzと高速の太陽風が続いていることを知らせ、L1点の観測値を示している。" width="640" loading="lazy"><figcaption>悪化の予告の例。太陽風が観測点（L1点）から地球に届くまでには、太陽風の速さによって40分〜1時間ほどかかります（毎秒660kmなら約40分）。その間に備えられるよう知らせます。</figcaption></figure>
+
+<h2>スマートフォンでの受け取り方</h2>
+<p>iPhone の標準の「メール」アプリで Gmail を受け取る場合、即時の通知（プッシュ）に対応しておらず、一定の間隔でメールを取りに行くため、通知が遅れて届くことがあります。Gmail アプリは即時に通知しますが、差出人ごとに通知音を変えることはできません。</p>
+<p>FT8 の DX は数分で聞こえなくなることもあるため、筆者は即時性を優先して Gmail アプリの通知を主に使っています。「メール」アプリで送信用アドレスを VIP に登録しておくと、遅れて鳴る音が「今のは DXCC の通知だった」という確認になります。</p>
+
+<h2>使い方に合わせた調整</h2>
+<p><code>start_dxcc.bat</code> の <code>python dxcc_notify.py</code> の行に、次のような指定を書き足すと動きを変えられます。</p>
+<div class="tbl"><table>
+<tr><th>指定</th><th>内容</th></tr>
+<tr><td><code>--bands 160m,80m,40m</code></td><td>通知するバンドを絞る（指定しなければ 160m〜6m のすべて）</td></tr>
+<tr><td><code>--cq-only</code></td><td>CQ を出している局だけを知らせる</td></tr>
+<tr><td><code>--min-snr -20</code></td><td>信号の強さ（SNR）がこの値より弱い局は知らせない</td></tr>
+<tr><td><code>--max-per-hour 10</code></td><td>1時間あたりの通知の上限（指定しなければ 20通）</td></tr>
+<tr><td><code>--called off</code></td><td>「他局が呼び出し中」の通知をしない</td></tr>
+</table></div>
+
+<h2>LoTW の確認状況を表示する（使う方のみ）</h2>
+<p>LoTW のアカウントがある方は、確認済み（QSL）を1日1回取得し、開始のメールで交信数と確認数を分けて表示できます。<code>settings.ini</code> の <code>lotw_user</code> に LoTW の Web サイトのユーザー名を書き、パスワードを環境変数に登録します。</p>
+<div class="cmd"><pre>setx LOTW_PASS "LoTWのWebサイトのパスワード"</pre></div>
+
+<h2>注意点と限界</h2>
+<ul>
+<li><strong>エンティティの判定はプレフィックスによります。</strong>特殊なコールサインや、Big CTY にまだ反映されていないDXペディションのコールでは、誤判定があり得ます。重要な局は、DXクラスタなどで確かめてください。</li>
+<li><strong>「交信済み」の判定は、DXCC の実績管理そのものではありません。</strong>Honor Roll にはコンファームが必要です。LoTW や Club Log での確認と併用してください。</li>
+<li><strong>Gmail の仕様が変わる可能性があります。</strong>アプリパスワードでの送信が、将来使えなくなることがあります。</li>
+<li><strong>遠隔で操作する場合</strong>は、電波法令と免許状の条件に従ってください。</li></ul>
+
+<h2>よくある質問</h2>
+<h3>デコードは表示されるのに、通知が来ません</h3>
+<p>聞こえている局が、すべて交信済みのエンティティなら、通知は来ません。正常に動いている状態です。開始のメールのバンドごとの交信数が、ご自分の実績と合っているかを確かめてください。</p>
+<h3>電離層の値に「約○時間前の値」と書かれています</h3>
+<p>電離層の観測値（国分寺）は、NICT の公開に合わせて更新されるため、数時間前の値になることがあります。いつの値かを必ず書き添えるようにしています。</p>
+<h3>Big CTY はどのくらいの頻度で入れ替えればよいですか</h3>
+<p>新しいDXペディションのコールが反映されるので、数か月に1回、画面2の手順で入れ替えることをおすすめします。</p>
+<p>ほかのご質問は、いただいたものから順にここに加えていきます。</p>
+
+<h2>お問い合わせ</h2>
+<p>CQ ham radio 2027年1月号の記事と、このシステムについてのご質問は、<a href="mailto:ja1bbe@jarl.com">ja1bbe@jarl.com</a> までお寄せください。起動したときに表示される版（例：dxcc-pilot 版 1.0.0）を添えていただけると助かります。</p>
+<p>スクリプトの一覧と利用条件は、<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub のリポジトリ</a>にあります。</p>
+
+<div class="nav"><a class="btn back" href="step5.html">前の画面：WSJT-X・JTAlertとつないで起動する</a><a class="btn next" href="https://ja1bbe.wixsite.com/mysite">ホームページに戻る</a></div>
+</main>
+<footer>CQ ham radio 2027年1月号「FT8で未交信DXCCをスマートフォンに知らせる」関連ページ　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
+</div>
+<script src="copy.js"></script>
+</body>
+</html>
