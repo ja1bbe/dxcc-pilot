@@ -1,0 +1,12 @@
+# 動かしたときにできるファイル（リポジトリには入れない）
+__pycache__/
+sessions/
+logs/*.adi
+logs/*.txt
+!logs/README.txt
+lotw/
+spacewx_cache.json
+dxpeditions_cache.json
+demo.eml
+demo.html
+common/cty_latest.*
