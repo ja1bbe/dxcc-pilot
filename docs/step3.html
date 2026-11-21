@@ -3,62 +3,79 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>試してから起動する（3／4）｜DXクラスター通知の構築手順（DXCC代行ワッチの追加機能）</title>
+<title>自局の設定とログの確認（3／6）｜DXCC代行ワッチの構築手順</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
-<style>.meter { grid-template-columns: repeat(4, 1fr); }</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="wrap">
 <header class="top">
-<div class="site"><a href="index.html">DXクラスター通知の構築手順（DXCC代行ワッチの追加機能）</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
-<nav aria-label="手順の進み具合"><ol class="meter"><li class="done"><a href="index.html"><span>全体像</span></a></li><li class="done"><a href="step2.html"><span>通知の条件</span></a></li><li class="now"><a href="step3.html" aria-current="step"><span>試験と起動</span></a></li><li class=""><a href="step4.html"><span>通知の見方</span></a></li></ol></nav>
+<div class="site"><a href="index.html">DXCC代行ワッチ（DXCC水先案内人）の構築手順</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
+<nav aria-label="手順の進み具合"><ol class="meter"><li class="done"><a href="index.html"><span>全体像</span></a></li><li class="done"><a href="step2.html"><span>Python</span></a></li><li class="now"><a href="step3.html" aria-current="step"><span>設定とログ</span></a></li><li class=""><a href="step4.html"><span>Gmail</span></a></li><li class=""><a href="step5.html"><span>起動</span></a></li><li class=""><a href="step6.html"><span>通知の見方</span></a></li></ol></nav>
 </header>
 <main>
-<p class="step">3／4</p>
-<h1>試してから起動する</h1>
+<p class="step">3／6</p>
+<h1>自局の設定とログの確認</h1>
 
-<p class="lead">まずメールを送らずに動きを確かめ、次にテストメールを送ってから、本番どおりに起動します。DXCC代行ワッチと同時に動かす方法も説明します。</p>
+<p class="lead">自局のコールサインとメールアドレスを設定ファイルに書き、スクリプトが HAMLOG の交信記録を正しく読めるかを確かめます。</p>
 
-<h2>メールを送らずに試す</h2>
-<p>コマンドプロンプトで、次のように実行します（HAMLOG の場所は、ご自分の環境に書き換えてください）。</p>
+<h2>settings.ini を書く</h2>
+<p><code>C:\dxcc-pilot\settings.ini</code> を右クリックし、「プログラムから開く」→「メモ帳」で開きます。「＜＞」の部分を、ご自分の値に書き換えます。</p>
+<div class="cmd tree"><pre>[station]
+my_call = JA1ABC
+mail_from = ja1abc.dxcc@gmail.com
+mail_to = 受信用のアドレス
+my_grid = PM85
+lotw_user =
+lotw_cert_start =
+
+[sites]
+home = 自宅</pre></div>
+<div class="tbl"><table>
+<tr><th>項目</th><th>書く内容</th></tr>
+<tr><td><code>my_call</code></td><td>自局のコールサイン。交信済みの判定には、ここに書いたコールでの交信だけを数えます。</td></tr>
+<tr><td><code>mail_from</code></td><td>通知を送るGmailのアドレス（画面4で作るもの）。先に決めておいて構いません。</td></tr>
+<tr><td><code>mail_to</code></td><td>通知を受け取るアドレス。送信用とは<strong>別のアドレス</strong>にします。</td></tr>
+<tr><td><code>my_grid</code></td><td>自局のグリッドロケータ（4桁か6桁）。書くと、通知にアンテナを向ける目安の方位が付きます。空けておいても動きます。</td></tr>
+<tr><td><code>lotw_user</code></td><td>LoTW を使う方だけ（画面6で説明します）。今は空けておきます。</td></tr>
+<tr><td><code>[sites]</code></td><td>このPCの名前。通知メールの件名に入ります。1台だけなら、このままで構いません。</td></tr>
+</table></div>
+<p>保存するときは「名前を付けて保存」で、下の「エンコード」が <strong>UTF-8</strong> になっていることを確かめます（Windows 11 のメモ帳は、通常 UTF-8 で保存されます）。パスワードはこのファイルには書きません。</p>
+
+<h3>複数のコールサインの交信を合算するとき</h3>
+<p>以前のコールサインや移動運用のコールでの交信も合算する場合は、<code>my_call = JA1ABC, JA1ABC/1</code> のようにカンマで区切って並べます。ARRL の DXCC では、本人が免許を受けたコールで、同じエンティティ（日本）から運用した交信を合算できます。他局の設備でその局のコールを使った運用（ゲスト運用）は、本人の実績になりません。ご自身の状況は、ARRL の最新の DXCC ルールで確かめてください。</p>
+<p>HAMLOG の備考に <code>%GestOP:</code> の記録がある交信や、送信したコールサイン（<code>$C=</code>）が自局と違う交信は、ゲスト運用として交信済みに数えません。</p>
+
+<h2>HAMLOG の交信記録が読めるか確かめる</h2>
+<p>コマンドプロンプトで、次の2行を順に実行します。2行目の HAMLOG のデータファイルの場所は、ご自分の環境に合わせて書き換えてください。</p>
 <div class="cmd"><pre>cd /d C:\dxcc-pilot
-python cluster_watch.py --dry-run --hamlog "C:\Hamlog\HAMLOG.hdb"</pre></div>
-<p>起動すると、次のように表示されます（数字は例です）。</p>
-<div class="cmd out"><pre>cluster_watch 版 0.1.0（dxcc-pilot の追加機能）
-自局: JA1ABC / モード: FT8, CW, SSB / バンド: 160m, 80m, ... / 通知: 全バンド初のみ / 取得先: dxscape, dxsummit
-交信済み: 1520 組（エンティティ×バンド）、エンティティ 248
-[DRY] [クラスター] 🔴全バンド初 30m FT8 TN8GD (Republic of the Congo)</pre></div>
-<p>2行目に、settings.ini で書いた条件がそのまま表示されているか確かめてください。3行目のエンティティの数は、DXCC代行ワッチの開始のメールに出る全バンドの交信数と、ほぼ同じになるはずです。未交信の局がスポットされていれば、「[DRY]」の行で、送るはずだったメールの件名が表示されます。スポットがないときは何も表示されないので、しばらく待ってください。確かめられたら Ctrl＋C で止めます。</p>
-<div class="warn"><p><strong>「HAMLOG を読めないため、30秒後に読み直します」と表示されたとき</strong></p><p>HAMLOG が交信の記録中だったり、ほかのソフトが読んでいたりすると、一時的に読めないことがあります。スクリプトは自動で読み直します。読めないまま交信済みを数えると、ゲスト運用の交信が紛れ込むため、読めるまで待つようにしてあります。何度も続く場合は、<code>--hamlog</code> の場所が正しいかを確かめてください。</p></div>
+python hamlog_reader.py "C:\Hamlog\HAMLOG.hdb"</pre></div>
+<p>次のように、件数と期間が表示されます（数字は例です）。交信の中身は表示しません。</p>
+<div class="cmd out"><pre>自局のコールサイン: JA1ABC
+読み込んだ交信: 10215件（自局 10170件、ゲスト運用など 45件）
+期間(UTC): 2003-09-06 〜 2026-12-20
+記録の時刻: {'JST': 6120, 'UTC': 4095}
+...
+点検: {'date_unknown': 3, 'deleted': 12, 'bad_band': 5}</pre></div>
+<ul>
+<li><strong>読み込んだ交信</strong>の件数が、HAMLOG に記録されている交信の数とほぼ合うことを確かめます（HAMLOG で削除した記録は数えません）。</li>
+<li><strong>期間</strong>が、最初の交信から最近の交信までになっていることを確かめます。</li>
+<li><strong>bad_band</strong> は、周波数の欄からバンドを判定できなかった件数です。入力の誤りがあると数が増えます。数件なら、そのまま進めて構いません。</li></ul>
+<div class="warn"><p><strong>件数が大きく違うとき</strong></p><p>HAMLOG のデータファイルの読み方は、公式の仕様ではなく、筆者の局のデータで確かめたものです。件数や期間が大きく違う場合は、この先へ進まず、表示された内容を添えてお問い合わせください（画面6）。</p></div>
 
-<h2>テストメールを送る</h2>
-<div class="cmd"><pre>python cluster_watch.py --test</pre></div>
-<p>スマートフォンに「[クラスター] テスト通知」が届けば、メールの経路は大丈夫です。</p>
-
-<h2>起動用のファイルを使う</h2>
-<p><code>C:\dxcc-pilot\start_cluster.bat</code> をメモ帳で開き、HAMLOG の場所の行を、<code>start_dxcc.bat</code> と同じに書き換えます。</p>
-<div class="cmd"><pre>set HAMLOG=C:\Hamlog\HAMLOG.hdb</pre></div>
-<p>デスクトップにショートカットを作っておけば、ダブルクリックで起動できます。止めるときは、そのウィンドウで Ctrl＋C を押すか、ウィンドウを閉じます。</p>
-
-<h2>DXCC代行ワッチと一緒に動かす</h2>
-<p>両方を同時に動かすときは、<code>start_dxcc.bat</code> の <code>python dxcc_notify.py</code> の行の<strong>前に</strong>、次の1行を加えます。</p>
-<div class="cmd"><pre>start "DXCLUSTER" /min python cluster_watch.py --site home --stop-with-wsjtx %HLOPT%</pre></div>
-<p><code>python dxcc_notify.py</code> の行は、止めるまで次の行に進みません。後ろに書くと、DXクラスター通知が始まらないため、必ず前に書きます。<code>start</code> を付けると、最小化した別のウィンドウで動きます。</p>
-<p><code>--stop-with-wsjtx</code> を付けると、WSJT-X を閉じたとき、2〜4分でDXクラスター通知も自動で終わります。代行ワッチのウィンドウで Ctrl＋C を押しても、DXクラスター通知は止まらないので、WSJT-X を開いたまま止めたいときは、タスクバーの「DXCLUSTER」のウィンドウを閉じてください。</p>
-<div class="note"><p><strong>同じ局を両方が知らせることがあります</strong></p><p>受信中のバンドで未交信の局がスポットされると、代行ワッチ（件名「[DXCC]」）とDXクラスター通知（件名「[クラスター]」）の両方からメールが届くことがあります。件名の先頭で見分けられます。</p></div>
+<h3>ADIF形式のログを使う場合</h3>
+<p>HAMLOG を使っていない場合や、ほかのソフトの交信も合わせたい場合は、ADIF形式のファイル（拡張子 .adi）を <code>C:\dxcc-pilot\logs</code> に置きます。HAMLOG と両方ある場合は、同じ交信を1件として合わせて判定します。</p>
 
 <div class="check"><h2>ここまでの確認</h2><ul>
-<li><code>--dry-run</code> で、設定した条件と交信済みの数が正しく表示された。</li>
-<li>テストメールがスマートフォンに届いた。</li>
-<li>起動用のファイル（または <code>start_dxcc.bat</code> の1行）で起動できた。</li></ul></div>
+<li><code>settings.ini</code> に自局のコールサインと2つのメールアドレスを書き、UTF-8 で保存した。</li>
+<li><code>hamlog_reader.py</code> の件数と期間が、HAMLOG の記録とほぼ合っている。</li></ul></div>
 
-<div class="nav"><a class="btn back" href="step2.html">前の画面：通知の条件を決める</a><a class="btn next" href="step4.html">次の画面：通知の見方とよくある質問</a></div>
+<div class="nav"><a class="btn back" href="step2.html">前の画面：Pythonとファイルの準備</a><a class="btn next" href="step4.html">次の画面：Gmailの準備</a></div>
 </main>
-<footer>DXCC代行ワッチ（dxcc-pilot）の追加機能「DXクラスター通知」　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
+<footer>CQ ham radio 2027年1月号「FT8で未交信DXCCをスマートフォンに知らせる」関連ページ　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
 </div>
-<script src="../copy.js"></script>
+<script src="copy.js"></script>
 </body>
 </html>

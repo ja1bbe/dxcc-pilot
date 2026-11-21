@@ -3,66 +3,60 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>通知の見方とよくある質問（4／4）｜DXクラスター通知の構築手順（DXCC代行ワッチの追加機能）</title>
+<title>Gmailの準備（4／6）｜DXCC代行ワッチの構築手順</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
-<style>.meter { grid-template-columns: repeat(4, 1fr); }</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="wrap">
 <header class="top">
-<div class="site"><a href="index.html">DXクラスター通知の構築手順（DXCC代行ワッチの追加機能）</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
-<nav aria-label="手順の進み具合"><ol class="meter"><li class="done"><a href="index.html"><span>全体像</span></a></li><li class="done"><a href="step2.html"><span>通知の条件</span></a></li><li class="done"><a href="step3.html"><span>試験と起動</span></a></li><li class="now"><a href="step4.html" aria-current="step"><span>通知の見方</span></a></li></ol></nav>
+<div class="site"><a href="index.html">DXCC代行ワッチ（DXCC水先案内人）の構築手順</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
+<nav aria-label="手順の進み具合"><ol class="meter"><li class="done"><a href="index.html"><span>全体像</span></a></li><li class="done"><a href="step2.html"><span>Python</span></a></li><li class="done"><a href="step3.html"><span>設定とログ</span></a></li><li class="now"><a href="step4.html" aria-current="step"><span>Gmail</span></a></li><li class=""><a href="step5.html"><span>起動</span></a></li><li class=""><a href="step6.html"><span>通知の見方</span></a></li></ol></nav>
 </header>
 <main>
-<p class="step">4／4</p>
-<h1>通知の見方とよくある質問</h1>
+<p class="step">4／6</p>
+<h1>Gmailの準備</h1>
 
-<p class="lead">届いたメールの見方と、知っておいていただきたい限界、よくある質問をまとめます。</p>
+<p class="lead">通知メールを送るための Gmail アカウントを準備し、パスワードを PC に登録して、テストメールを送ります。</p>
 
-<h2>件名の印</h2>
-<div class="tbl"><table>
-<tr><th>件名の例</th><th>意味</th></tr>
-<tr><td><code>[クラスター] 🔴全バンド初 30m FT8 TN8GD (Republic of the Congo)</code></td><td>どのバンドでも未交信のエンティティ</td></tr>
-<tr><td><code>[クラスター] 🟢バンドニュー 80m CW 6W1ZZ (Senegal)</code></td><td>そのバンドでは未交信のエンティティ（<code>notify</code> に <code>bandnew</code> を書いたときだけ）</td></tr>
-</table></div>
-<p>印は DXCC代行ワッチの通知と同じものです。件名にバンドとモードが入るので、スマートフォンの通知の一覧だけで、どのバンドに移ればよいかが分かります。</p>
+<h2>通知専用のアカウントを作る</h2>
+<p>普段使っているアカウントとは別に、通知専用の Gmail アカウントを作ることをおすすめします。このあと発行する「アプリパスワード」は、そのアカウントのメールを外部から操作できる強い権限を持つためです。専用のアカウントに分けておけば、万一 PC からパスワードが漏れても、普段のアカウントに影響が及びません。</p>
+<p>作ったアドレスを、<code>settings.ini</code> の <code>mail_from</code> に書きます。</p>
 
-<h2>本文の項目</h2>
-<p>本文には、コールサイン、エンティティと DXCC 番号、周波数、推定したモードとその根拠、スポットの時刻（UTC と日本時間）、コメント、スポッター、出典（DXSCAPE か DX Summit か）、通知した PC の名前が並びます。実際に聞こえたのはスポッターの局で、自局で受信したわけではないことに注意してください。</p>
+<h2>2段階認証を有効にする</h2>
+<p>アプリパスワードを発行するには、2段階認証が有効になっている必要があります。通知専用のアカウントで <a href="https://myaccount.google.com/">myaccount.google.com</a> を開き、「セキュリティ」→「2段階認証プロセス」を開いて有効にします。</p>
+<p>「再設定用の電話番号」の登録画面と取り違えやすいので注意してください。「2段階認証プロセス」の欄に「○時○分より有効」のように表示されれば、正しく設定できています。</p>
 
-<h2>注意点と限界</h2>
+<h2>アプリパスワードを発行する</h2>
+<p><a href="https://myaccount.google.com/apppasswords">myaccount.google.com/apppasswords</a> を開き、アプリ名（例：dxcc_notify）を入力して作成します。表示される16文字は、画面を閉じると二度と表示されません。必ず控えておきます。</p>
+
+<h2>パスワードを PC に登録する</h2>
+<p>パスワードをファイルやコマンドに書くと、画面や履歴に残ってしまいます。そこで「環境変数」として PC に登録します。コマンドプロンプトで次のように入力します。16文字は、空白を入れずに続けて入力します。</p>
+<div class="cmd"><pre>setx DXCC_MAIL_PASS "16文字のアプリパスワード"</pre></div>
+<p>「成功: 指定した値は保存されました。」と表示されたら、<strong>コマンドプロンプトをいったん閉じて開き直し</strong>、次のコマンドで「登録OK」と表示されることを確かめます。このコマンドは、パスワードそのものを画面に表示しません。</p>
+<div class="cmd"><pre>if defined DXCC_MAIL_PASS echo 登録OK</pre></div>
+
+<h2>テストメールを送る</h2>
+<div class="cmd"><pre>cd /d C:\dxcc-pilot
+python dxcc_notify.py --test</pre></div>
+<p>約30秒後に、<code>mail_to</code> のアドレスに「[DXCC] テスト通知」が届けば成功です。</p>
+<div class="note"><p><strong>送信用と受信用を別のアドレスにする理由</strong></p><p>自分から自分宛てに送ったメールは、スマートフォンの通知が鳴らない場合があるためです。</p></div>
+<h3>届かないとき</h3>
 <ul>
-<li><strong>誰もスポットしなければ、知らせられません。</strong>日本のどこかで聞こえていても、クラスターに上がらなければ届きません。</li>
-<li><strong>スポットには誤りがあります。</strong>コールサインの打ち間違いや、デコードの誤り、すでに QRT した局のスポットも届きます。応答する前に、受信機で確かめてください。</li>
-<li><strong>モードは推定です。</strong>画面2で説明したとおり、周波数からの推定は外れることがあります。</li>
-<li><strong>取りこぼしがあります。</strong>DXSCAPE の JA25 は直近25件、DX Summit も一度に取れるのは直近の数十件です。コンテストなどでスポットが多いと、2分の間に流れ去ったものは取れません。DX Summit で取りこぼしの可能性があるときは、画面に「取得できていない可能性があります」と表示されます。</li>
-<li><strong>提供元のサイトが止まっていることがあります。</strong>「取得エラー」が表示されても、次の回に自動で取り直します。</li>
-<li><strong>交信済みの判定は、HAMLOG と ADIF の記録どおりです。</strong>交信してもまだ HAMLOG に入れていなければ、その局は未交信として知らせ続けます。HAMLOG に記録すると、数分以内に読み直して止まります。</li>
-</ul>
-<p>このシステムは、聞き逃しを防ぐための補助です。応答するかどうかは、必ず運用者自身が判断してください。</p>
+<li>「アプリパスワードが見つかりません」と表示される：コマンドプロンプトを開き直してから実行したか、確かめてください。</li>
+<li>「メールアドレスが設定されていません」と表示される：<code>settings.ini</code> の <code>mail_from</code> と <code>mail_to</code> に「＜＞」が残っていないか確かめてください。</li>
+<li>送信のエラーが表示される：スクリプトは 465番と587番の2つの方法で送信を試みます。両方とも失敗する場合は、セキュリティソフトがメールの送信を止めていないか確かめてください。</li></ul>
 
-<h2>よくある質問</h2>
-<h3>通知がまったく来ません</h3>
-<p>まず <code>--dry-run</code> で起動し、2行目の条件が意図どおりかを確かめてください。全バンド初だけにしている場合、未交信のエンティティのスポットはそれほど多くないので、数日来ないこともあります。動作だけを確かめたいときは、一時的に <code>notify = atno, bandnew</code> にすると、通知が届きやすくなります。</p>
-<h3>通知が多すぎます</h3>
-<p><code>bandnew</code> を外す、<code>modes</code> や <code>bands</code> を絞る、<code>renotify_hours</code> を長くする、のいずれかで減らせます。<code>max_per_hour</code> は、通知が続いたときの上限です。</p>
-<h3>交信済みの局が「全バンド初」で届きました</h3>
-<p>HAMLOG を読めないまま始まった可能性があります。起動時の画面に「HAMLOG を読めない」と出ていないか、<code>hamlog_reader.py</code> を新しい版に入れ替えたかを確かめてください。古い版の <code>hamlog_reader.py</code> のまま DXCC代行ワッチと同時に動かすと、この症状が起きます。</p>
-<h3>DXCC 番号が表示されません</h3>
-<p><code>common</code> フォルダに <code>cty_latest.csv</code> があるかを確かめてください。Windows はファイルの拡張子を隠すので、名前を変えたときに <code>cty_latest.csv.csv</code> になっていることがあります。エクスプローラーの「表示」で「ファイル名拡張子」にチェックを入れると確かめられます。</p>
-<h3>モード別に交信済みを判定できますか</h3>
-<p>今の版は、DXCC Mixed と同じく、モードを問わずバンドごとに交信済みかどうかを判定します。モード別の判定は、今後の検討課題です。</p>
+<div class="check"><h2>ここまでの確認</h2><ul>
+<li>「登録OK」と表示される。</li>
+<li>テスト通知がスマートフォンに届いた。</li></ul></div>
 
-<h2>お問い合わせ</h2>
-<p>ご質問は、<a href="mailto:ja1bbe@jarl.com">ja1bbe@jarl.com</a> までお寄せください。起動したときに表示される版（例：cluster_watch 版 0.1.0）を添えていただけると助かります。個人で運営しているため、お返事までにお時間をいただくことがあります。困ったときの AI アシスタントへの尋ね方は、<a href="../step6.html">DXCC代行ワッチの画面6</a>をご覧ください。</p>
-
-<div class="nav"><a class="btn back" href="step3.html">前の画面：試してから起動する</a><a class="btn next" href="https://ja1bbe.wixsite.com/mysite">ホームページに戻る</a></div>
+<div class="nav"><a class="btn back" href="step3.html">前の画面：自局の設定とログの確認</a><a class="btn next" href="step5.html">次の画面：WSJT-X・JTAlertとつないで起動する</a></div>
 </main>
-<footer>DXCC代行ワッチ（dxcc-pilot）の追加機能「DXクラスター通知」　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
+<footer>CQ ham radio 2027年1月号「FT8で未交信DXCCをスマートフォンに知らせる」関連ページ　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
 </div>
-<script src="../copy.js"></script>
+<script src="copy.js"></script>
 </body>
 </html>

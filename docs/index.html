@@ -3,99 +3,77 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>全体像と準備するもの（1／4）｜DXクラスター通知の構築手順（DXCC代行ワッチの追加機能）</title>
+<title>全体像と準備するもの（1／6）｜DXCC代行ワッチの構築手順</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
-<style>.meter { grid-template-columns: repeat(4, 1fr); }</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="wrap">
 <header class="top">
-<div class="site"><a href="index.html">DXクラスター通知の構築手順（DXCC代行ワッチの追加機能）</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
-<nav aria-label="手順の進み具合"><ol class="meter"><li class="now"><a href="index.html" aria-current="step"><span>全体像</span></a></li><li class=""><a href="step2.html"><span>通知の条件</span></a></li><li class=""><a href="step3.html"><span>試験と起動</span></a></li><li class=""><a href="step4.html"><span>通知の見方</span></a></li></ol></nav>
+<div class="site"><a href="index.html">DXCC代行ワッチ（DXCC水先案内人）の構築手順</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
+<nav aria-label="手順の進み具合"><ol class="meter"><li class="now"><a href="index.html" aria-current="step"><span>全体像</span></a></li><li class=""><a href="step2.html"><span>Python</span></a></li><li class=""><a href="step3.html"><span>設定とログ</span></a></li><li class=""><a href="step4.html"><span>Gmail</span></a></li><li class=""><a href="step5.html"><span>起動</span></a></li><li class=""><a href="step6.html"><span>通知の見方</span></a></li></ol></nav>
 </header>
 <main>
-<p class="step">1／4</p>
+<p class="step">1／6</p>
 <h1>全体像と準備するもの</h1>
 
-<p class="lead">日本の局が DX クラスターに上げたスポットを見張り、自局が未交信のエンティティが見つかったときだけ、スマートフォンにメールで知らせる仕組みです。FT8・CW・SSB などのモードと、全バンドか特定のバンドかを選べます。DXCC代行ワッチ（dxcc-pilot）の追加機能として、同じフォルダに入れて使います。</p>
+<p class="lead">FT8で、バンドごとに未交信のDXCCエンティティが聞こえたときだけ、スマートフォンにメールで知らせる仕組みです。シャックを離れていても、寝ている間でも、必要なときだけ知らせてくれます。この6つの画面で、ご自分の局に構築する手順を順に説明します。</p>
 
 <h2>どのように動くのか</h2>
 <figure>
-<svg viewBox="0 0 660 300" role="img" aria-label="構成図。DXSCAPEとDX Summitの日本の局のスポットを、cluster_watch.py が定期的に取得し、HAMLOGの交信記録と比べて、未交信ならGmail経由でスマートフォンに知らせる。">
+<svg viewBox="0 0 660 300" role="img" aria-label="システム構成図。受信機からWSJT-Xへ、WSJT-XからUDPマルチキャストでJTAlertと通知スクリプトへ、通知スクリプトからGmail経由でスマートフォンへ。通知スクリプトはHAMLOGの交信記録を読む。">
  <g font-family="BIZ UDPGothic, sans-serif" font-size="15" fill="#EDEAE2">
-  <rect x="10" y="20" width="200" height="54" rx="4" fill="#161616" stroke="#5A554B"/>
-  <text x="110" y="44" text-anchor="middle">DXSCAPE（JA25）</text><text x="110" y="64" text-anchor="middle" font-size="12" fill="#A9A59B">日本からのスポット</text>
-  <rect x="10" y="100" width="200" height="54" rx="4" fill="#161616" stroke="#5A554B"/>
-  <text x="110" y="124" text-anchor="middle">DX Summit</text><text x="110" y="144" text-anchor="middle" font-size="12" fill="#A9A59B">スポッターが日本の局のもの</text>
-  <line x1="210" y1="47" x2="250" y2="47" stroke="#7FCFE3" stroke-width="2"/><line x1="210" y1="127" x2="250" y2="127" stroke="#7FCFE3" stroke-width="2"/>
-  <line x1="250" y1="47" x2="250" y2="127" stroke="#7FCFE3" stroke-width="2"/><line x1="250" y1="87" x2="282" y2="87" stroke="#7FCFE3" stroke-width="2"/><path d="M285 87 l-8 -5 v10z" fill="#7FCFE3"/>
-  <rect x="290" y="60" width="200" height="54" rx="4" fill="#161616" stroke="#D9B44A" stroke-width="2"/>
-  <text x="390" y="84" text-anchor="middle">cluster_watch.py</text><text x="390" y="104" text-anchor="middle" font-size="12" fill="#A9A59B">モード・バンド・未交信の判定</text>
-  <rect x="290" y="200" width="200" height="54" rx="4" fill="#161616" stroke="#5A554B"/>
-  <text x="390" y="224" text-anchor="middle">HAMLOG（Hamlog.hdb）</text><text x="390" y="244" text-anchor="middle" font-size="12" fill="#A9A59B">自局の交信記録（読むだけ）</text>
-  <line x1="390" y1="200" x2="390" y2="117" stroke="#A9A59B" stroke-width="2" stroke-dasharray="5 4"/><path d="M390 114 l-5 8 h10z" fill="#A9A59B"/>
-  <rect x="530" y="60" width="120" height="54" rx="4" fill="#161616" stroke="#5A554B"/>
-  <text x="590" y="84" text-anchor="middle">Gmail</text><text x="590" y="104" text-anchor="middle" font-size="12" fill="#A9A59B">送信</text>
-  <line x1="490" y1="87" x2="524" y2="87" stroke="#7FCFE3" stroke-width="2"/><path d="M527 87 l-8 -5 v10z" fill="#7FCFE3"/>
-  <rect x="530" y="200" width="120" height="54" rx="4" fill="#161616" stroke="#5A554B"/>
-  <text x="590" y="224" text-anchor="middle">スマートフォン</text><text x="590" y="244" text-anchor="middle" font-size="12" fill="#A9A59B">通知を受け取る</text>
-  <line x1="590" y1="114" x2="590" y2="194" stroke="#7FCFE3" stroke-width="2"/><path d="M590 197 l-5 -8 h10z" fill="#7FCFE3"/>
+  <rect x="10" y="20" width="170" height="54" rx="4" fill="#161616" stroke="#5A554B"/>
+  <text x="95" y="44" text-anchor="middle">SDR または無線機</text><text x="95" y="64" text-anchor="middle" font-size="12" fill="#A9A59B">受信</text>
+  <rect x="235" y="20" width="170" height="54" rx="4" fill="#161616" stroke="#5A554B"/>
+  <text x="320" y="44" text-anchor="middle">WSJT-X</text><text x="320" y="64" text-anchor="middle" font-size="12" fill="#A9A59B">FT8のデコード</text>
+  <line x1="180" y1="47" x2="232" y2="47" stroke="#7FCFE3" stroke-width="2"/><path d="M232 47 l-8 -5 v10z" fill="#7FCFE3"/>
+  <line x1="320" y1="74" x2="320" y2="110" stroke="#7FCFE3" stroke-width="2"/>
+  <text x="330" y="100" font-size="12" fill="#7FCFE3">UDPマルチキャスト</text>
+  <line x1="150" y1="110" x2="490" y2="110" stroke="#7FCFE3" stroke-width="2"/>
+  <line x1="150" y1="110" x2="150" y2="140" stroke="#7FCFE3" stroke-width="2"/><path d="M150 143 l-5 -8 h10z" fill="#7FCFE3"/>
+  <line x1="490" y1="110" x2="490" y2="140" stroke="#7FCFE3" stroke-width="2"/><path d="M490 143 l-5 -8 h10z" fill="#7FCFE3"/>
+  <rect x="60" y="145" width="180" height="54" rx="4" fill="#161616" stroke="#5A554B"/>
+  <text x="150" y="169" text-anchor="middle">JTAlert</text><text x="150" y="189" text-anchor="middle" font-size="12" fill="#A9A59B">画面表示・交信の記録</text>
+  <rect x="390" y="145" width="200" height="54" rx="4" fill="#161616" stroke="#D9B44A" stroke-width="2"/>
+  <text x="490" y="169" text-anchor="middle" fill="#D9B44A" font-weight="700" font-family="Consolas, Menlo, monospace">dxcc_notify.py</text><text x="490" y="189" text-anchor="middle" font-size="12" fill="#A9A59B">判定・通知</text>
+  <rect x="380" y="232" width="100" height="44" rx="4" fill="#161616" stroke="#5A554B"/><text x="430" y="259" text-anchor="middle">Gmail</text>
+  <rect x="510" y="232" width="140" height="44" rx="4" fill="#161616" stroke="#5A554B"/><text x="580" y="259" text-anchor="middle">スマートフォン</text>
+  <line x1="460" y1="199" x2="440" y2="229" stroke="#7FCFE3" stroke-width="2"/>
+  <line x1="480" y1="254" x2="507" y2="254" stroke="#7FCFE3" stroke-width="2"/><path d="M507 254 l-8 -5 v10z" fill="#7FCFE3"/>
+  <rect x="160" y="232" width="170" height="44" rx="4" fill="#161616" stroke="#5A554B"/><text x="245" y="259" text-anchor="middle">Turbo HAMLOG</text>
+  <line x1="330" y1="254" x2="400" y2="190" stroke="#A9A59B" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="270" y="222" font-size="12" fill="#A9A59B">交信記録を読む</text>
  </g>
 </svg>
-<figcaption>点線は、交信済みかどうかを確かめるために HAMLOG を読む流れです。HAMLOG のファイルには書き込みません。</figcaption>
+<figcaption>受信した局が、そのバンドで未交信のエンティティなら、通知スクリプトがメールを送ります。</figcaption>
 </figure>
-<p>スクリプト <code>cluster_watch.py</code> が、2分ごとに次の2か所からスポットを取得します。</p>
-<ul>
-<li><strong>DXSCAPE の JA25</strong>：日本からのスポットの直近25件を表示しているページです。</li>
-<li><strong>DX Summit</strong>：世界中のスポットが流れるサイトです。このうち、スポッターのコールサインが日本の局のものだけを使います。</li>
-</ul>
-<p>スポットのモード・バンドが、設定で選んだものに当てはまり、そのエンティティが未交信であれば、メールを送ります。交信済みかどうかは、DXCC代行ワッチと同じく、HAMLOG の自局の交信と <code>logs</code> フォルダの ADIF で判定します。ゲスト運用（他局のコールサインでの運用）の交信は数えません。</p>
-
-<h2>DXCC代行ワッチとの違い</h2>
-<div class="tbl"><table>
-<tr><th></th><th>DXCC代行ワッチ</th><th>DXクラスター通知</th></tr>
-<tr><td>手がかり</td><td>自局の SDR・無線機で受信した FT8</td><td>日本の局が上げたスポット</td></tr>
-<tr><td>モード</td><td>FT8</td><td>FT8・FT4・CW・SSB から選ぶ</td></tr>
-<tr><td>バンド</td><td>受信中のバンドだけ</td><td>全バンド、または選んだバンド</td></tr>
-<tr><td>無線機・WSJT-X</td><td>必要</td><td>不要（PC とインターネットだけで動く）</td></tr>
-<tr><td>確かさ</td><td>自局で実際に聞こえた局</td><td>日本のどこかで聞こえた局（誤ったスポットもある）</td></tr>
-</table></div>
-<p>代行ワッチで 7MHz を受信している間に、14MHz に未交信の局が現れても気付けません。DXクラスター通知は、その欠点を補います。両方を同時に動かすこともできます（画面3）。</p>
+<p>WSJT-Xのデコード結果を、JTAlertと通知スクリプト（dxcc_notify.py）が同時に受け取ります。スクリプトは、Turbo HAMLOGの交信記録と照らし合わせ、<strong>そのバンドで未交信のエンティティ</strong>のときだけGmailからメールを送ります。交信をHAMLOGに記録すると、スクリプトが記録を読み直し、そのエンティティの通知は自動的に止まります。</p>
+<figure class="shot"><img src="img/notify-rx.png" alt="通知メールの例。80mでモントセラトのVP2MAAを受信したことを知らせ、SNR、受信時刻、受信メッセージ、宇宙天気、このエンティティの交信記録を示している。" width="640" loading="lazy"><figcaption>通知メールの例（筆者の局）。受信した局と信号の強さ、受信時の宇宙天気、そのエンティティのバンドごとの交信記録が載ります。</figcaption></figure>
 
 <h2>準備するもの</h2>
-<p>DXCC代行ワッチの構築手順のうち、次の画面を済ませていることが前提です。Python、国別データ、自局の設定、Gmail の準備は共通なので、もう一度行う必要はありません。</p>
 <ul>
-<li><a href="../step2.html">画面2：Pythonとファイルの準備</a>（Big CTY の <code>cty_latest.dat</code> と <code>cty_latest.csv</code> を含む）</li>
-<li><a href="../step3.html">画面3：自局の設定とログの確認</a>（<code>settings.ini</code> の <code>[station]</code>）</li>
-<li><a href="../step4.html">画面4：Gmailの準備</a>（環境変数 <code>DXCC_MAIL_PASS</code> の登録とテストメール）</li>
+<li><strong>Windows 10 または 11 のPC</strong>：WSJT-Xを動かしているPCです。</li>
+<li><strong>WSJT-X と JTAlert</strong>：すでにFT8で運用している方は、そのまま使えます。</li>
+<li><strong>Turbo HAMLOG</strong>：交信済みかどうかの判定に、HAMLOGのデータファイル（Hamlog.hdb）を使います。ADIF形式のログでも動きます。</li>
+<li><strong>通知専用のGmailアカウント</strong>：普段のアカウントとは別に作ることをおすすめします（画面4で説明します）。</li>
+<li><strong>通知を受け取るスマートフォン</strong>：送信用とは別のメールアドレスで受け取ります。</li>
 </ul>
-<p>代行ワッチ（WSJT-X との接続）を使わず、DXクラスター通知だけを使う場合も、この3つの画面は必要です。</p>
+<p>プログラミングの経験は要りません。コマンドは、この画面のものをコピーして貼り付ければ動くようにしてあります。画面ごとに区切りがあるので、何回かに分けて進めても大丈夫です。</p>
 
-<h2>ファイルを最新にする</h2>
-<p>GitHub のリポジトリから最新のファイル一式を入手し、<code>C:\dxcc-pilot</code> に上書きします。DXクラスター通知で加わるのは、次のファイルです。</p>
-<div class="cmd tree"><pre>C:\dxcc-pilot\
-  cluster_watch.py      … DXクラスター通知の本体（新規）
-  start_cluster.bat     … 起動用ファイルの見本（新規）
-  settings.ini          … [cluster] の欄が加わりました
-  hamlog_reader.py      … 2つのスクリプトが同時に HAMLOG を読めるよう修正
-  dxcc_notify.py        … HAMLOG を読めなかったときの扱いを修正</pre></div>
-<div class="warn"><p><strong>settings.ini は上書きしない</strong></p><p>すでに自局の値を書き込んだ <code>settings.ini</code> は、上書きすると書き直しになります。新しい <code>settings.ini</code> から、<code>[cluster]</code> 以下の部分だけをコピーして、お手元の <code>settings.ini</code> の末尾に貼り付けてください。</p></div>
-<div class="note"><p><strong>hamlog_reader.py と dxcc_notify.py も入れ替える理由</strong></p><p>古い版のまま2つのスクリプトを同時に動かすと、HAMLOG の読み込みがぶつかって失敗することがあります。失敗すると、ADIF のうちゲスト運用の交信を見分けられず、交信済みが多めに数えられて、未交信の通知が漏れます。新しい版ではこれが起きないようにしてあります。</p></div>
-
-<h2>スポットの提供元への配慮</h2>
-<p>DXSCAPE と DX Summit は、どちらも個人や団体が運営しているサイトです。このスクリプトは、取得の間隔を60秒より短くできないようにしてあります。間隔を短くしすぎないこと、取得したデータを再配布しないことをお守りください。</p>
+<div class="note"><p><strong>このシステムの位置づけ</strong></p><p>これは聞き逃しを防ぐための補助です。通知を受けて応答するかどうかは、必ず運用者自身が判断してください。無人で自動的に交信するものではありません。</p></div>
 
 <div class="check"><h2>ここまでの確認</h2><ul>
-<li>DXCC代行ワッチの画面2〜4を済ませ、テストメールが届いている。</li>
-<li><code>C:\dxcc-pilot</code> に <code>cluster_watch.py</code> があり、<code>settings.ini</code> の末尾に <code>[cluster]</code> の欄を加えた。</li></ul></div>
+<li>WSJT-X と JTAlert で、FT8のデコードが表示できている。</li>
+<li>Turbo HAMLOG のデータファイル（Hamlog.hdb）の場所がわかる。</li>
+<li>通知の受け取りに使うスマートフォンとメールアドレスが決まっている。</li></ul></div>
 
-<div class="nav"><a class="btn back" href="../index.html">DXCC代行ワッチの手順へ</a><a class="btn next" href="step2.html">次の画面：通知の条件を決める</a></div>
+<div class="nav"><a class="btn next" href="step2.html">次の画面：Pythonとファイルの準備</a></div>
 </main>
-<footer>DXCC代行ワッチ（dxcc-pilot）の追加機能「DXクラスター通知」　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
+<footer>CQ ham radio 2027年1月号「FT8で未交信DXCCをスマートフォンに知らせる」関連ページ　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
 </div>
-<script src="../copy.js"></script>
+<script src="copy.js"></script>
 </body>
 </html>
