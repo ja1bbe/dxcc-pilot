@@ -18,7 +18,7 @@ Turbo HAMLOG のデータファイル（Hamlog.hdb, dBase III形式）を読み�
   日付の明らかな誤り（1970年より前・未来・月日が0）は「日付不明」として扱い、交信自体は数える
 元のファイルには一切書き込みません（一時フォルダにコピーしてから読みます）。
 """
-import os, shutil, struct, tempfile, unicodedata, re
+import os, shutil, struct, tempfile, time, unicodedata, re
 from datetime import datetime, timedelta, timezone
 
 MY_CALLS = set()               # 自局のコールサイン。settings.ini の my_call から set_my_calls() で設定する
@@ -113,8 +113,19 @@ def read_hamlog(path):
     """HDBを読み、交信のリストと集計情報を返す"""
     if not MY_CALLS:
         raise ValueError("自局のコールサインが設定されていません（settings.ini の my_call）")
-    tmp = os.path.join(tempfile.gettempdir(), "hamlog_reader_copy.hdb")
-    shutil.copy2(path, tmp)
+    # 一時コピーはプロセスごとに別の名前にする（dxcc_notify.py と cluster_watch.py が
+    # 同時に読んでも衝突しないように）。HAMLOGの書き込み中などでコピーできないときは、間をあけて再試行
+    fd, tmp = tempfile.mkstemp(prefix="hamlog_reader_", suffix=".hdb")
+    os.close(fd)
+    for attempt in range(5):
+        try:
+            shutil.copy2(path, tmp)
+            break
+        except OSError:
+            if attempt == 4:
+                _remove(tmp)
+                raise
+            time.sleep(3)
     qsos, warn = [], {"date_unknown": 0, "bad_band": 0, "deleted": 0}
     try:
         with open(tmp, "rb") as f:
@@ -153,7 +164,7 @@ def read_hamlog(path):
                     "op_call": op_call, "guest": guest, "source": "HAMLOG",
                 })
     finally:
-        os.remove(tmp)
+        _remove(tmp)
     return qsos, warn
 
 def is_own(q):
@@ -195,6 +206,13 @@ def worked_table(qsos, dxcc_of):
         for lst in bands.values():
             lst.sort(key=key)
     return table
+
+def _remove(p):
+    try:
+        os.remove(p)
+    except OSError:
+        pass
+
 
 if __name__ == "__main__":
     # 自己点検: python hamlog_reader.py Hamlog.hdb（自局のコールサインは settings.ini から読む）

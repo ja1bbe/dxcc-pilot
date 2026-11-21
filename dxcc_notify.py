@@ -1121,18 +1121,30 @@ def main():
         m = tuple((p, os.path.getmtime(p)) for p in watch if os.path.exists(p))
         if not force and m == mtimes:
             return
-        worked, mtimes = set(remote_worked), m
-        info, adif_list = [], []
         # HAMLOGを先に読み、ゲスト運用の交信を把握する（ADIF側の同じ交信を除外するため）
+        # HAMLOGを読めないと、ADIFのゲスト運用の交信を見分けられず交信済みに数えてしまうため、
+        # 2回目以降の読み直しで失敗したときは、前回の交信済みの表をそのまま使い、次の確認時に読み直す
         hl, skip = [], None
+        hamlog_ok = True
         if a.hamlog and hamlog_reader and os.path.exists(a.hamlog):
             try:
                 hl, warn_h = hamlog_reader.read_hamlog(a.hamlog)
             except Exception as e:
                 print(f'[HAMLOG] 読み込めませんでした: {e}')
-                hl = []
+                hl, hamlog_ok = [], False
         elif a.hamlog:
             print(f'[HAMLOG] 読み込めません（ファイルまたは hamlog_reader.py がありません）: {a.hamlog}')
+            hamlog_ok = False
+        if not hamlog_ok and mtimes is not None:
+            print('[HAMLOG] 前回の交信済みの表をそのまま使います（次の確認のときに読み直します）')
+            return
+        worked, mtimes = set(remote_worked), m
+        info, adif_list = [], []
+        if not hamlog_ok:
+            info.append('【注意】HAMLOGを読めなかったため、ADIFのゲスト運用の交信を除外できていません'
+                        '（交信済みが多めに数えられ、未交信の通知が漏れることがあります）。読めしだい自動で読み直します')
+            print(f'log loaded: {info[-1]}')
+            mtimes = (('__retry_hamlog__', 0),)   # 次の確認のときに、もう一度読み直す
         if not (hamlog_reader and hamlog_reader.COUNT_GUEST):
             skip = guest_matcher(hl, {c.split('/')[0] for c in my_calls})   # JA1ABC/1 も自局
         skipped = {}
