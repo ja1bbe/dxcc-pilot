@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>通知の見方とよくある質問（4／4）｜DXクラスター通知の構築手順（DXCC代行ワッチの追加機能）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>.meter { grid-template-columns: repeat(4, 1fr); }</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="site"><a href="index.html">DXクラスター通知の構築手順（DXCC代行ワッチの追加機能）</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
+<nav aria-label="手順の進み具合"><ol class="meter"><li class="done"><a href="index.html"><span>全体像</span></a></li><li class="done"><a href="step2.html"><span>通知の条件</span></a></li><li class="done"><a href="step3.html"><span>試験と起動</span></a></li><li class="now"><a href="step4.html" aria-current="step"><span>通知の見方</span></a></li></ol></nav>
+</header>
+<main>
+<p class="step">4／4</p>
+<h1>通知の見方とよくある質問</h1>
+
+<p class="lead">届いたメールの見方と、知っておいていただきたい限界、よくある質問をまとめます。</p>
+
+<h2>件名の印</h2>
+<div class="tbl"><table>
+<tr><th>件名の例</th><th>意味</th></tr>
+<tr><td><code>[クラスター] 🔴全バンド初 30m FT8 TN8GD (Republic of the Congo)</code></td><td>どのバンドでも未交信のエンティティ</td></tr>
+<tr><td><code>[クラスター] 🟢バンドニュー 80m CW 6W1ZZ (Senegal)</code></td><td>そのバンドでは未交信のエンティティ（<code>notify</code> に <code>bandnew</code> を書いたときだけ）</td></tr>
+</table></div>
+<p>印は DXCC代行ワッチの通知と同じものです。件名にバンドとモードが入るので、スマートフォンの通知の一覧だけで、どのバンドに移ればよいかが分かります。</p>
+
+<h2>本文の項目</h2>
+<p>本文には、コールサイン、エンティティと DXCC 番号、周波数、推定したモードとその根拠、スポットの時刻（UTC と日本時間）、コメント、スポッター、出典（DXSCAPE か DX Summit か）、通知した PC の名前が並びます。実際に聞こえたのはスポッターの局で、自局で受信したわけではないことに注意してください。</p>
+
+<h2>注意点と限界</h2>
+<ul>
+<li><strong>誰もスポットしなければ、知らせられません。</strong>日本のどこかで聞こえていても、クラスターに上がらなければ届きません。</li>
+<li><strong>スポットには誤りがあります。</strong>コールサインの打ち間違いや、デコードの誤り、すでに QRT した局のスポットも届きます。応答する前に、受信機で確かめてください。</li>
+<li><strong>モードは推定です。</strong>画面2で説明したとおり、周波数からの推定は外れることがあります。</li>
+<li><strong>取りこぼしがあります。</strong>DXSCAPE の JA25 は直近25件、DX Summit も一度に取れるのは直近の数十件です。コンテストなどでスポットが多いと、2分の間に流れ去ったものは取れません。DX Summit で取りこぼしの可能性があるときは、画面に「取得できていない可能性があります」と表示されます。</li>
+<li><strong>提供元のサイトが止まっていることがあります。</strong>「取得エラー」が表示されても、次の回に自動で取り直します。</li>
+<li><strong>交信済みの判定は、HAMLOG と ADIF の記録どおりです。</strong>交信してもまだ HAMLOG に入れていなければ、その局は未交信として知らせ続けます。HAMLOG に記録すると、数分以内に読み直して止まります。</li>
+</ul>
+<p>このシステムは、聞き逃しを防ぐための補助です。応答するかどうかは、必ず運用者自身が判断してください。</p>
+
+<h2>よくある質問</h2>
+<h3>通知がまったく来ません</h3>
+<p>まず <code>--dry-run</code> で起動し、2行目の条件が意図どおりかを確かめてください。全バンド初だけにしている場合、未交信のエンティティのスポットはそれほど多くないので、数日来ないこともあります。動作だけを確かめたいときは、一時的に <code>notify = atno, bandnew</code> にすると、通知が届きやすくなります。</p>
+<h3>通知が多すぎます</h3>
+<p><code>bandnew</code> を外す、<code>modes</code> や <code>bands</code> を絞る、<code>renotify_hours</code> を長くする、のいずれかで減らせます。<code>max_per_hour</code> は、通知が続いたときの上限です。</p>
+<h3>交信済みの局が「全バンド初」で届きました</h3>
+<p>HAMLOG を読めないまま始まった可能性があります。起動時の画面に「HAMLOG を読めない」と出ていないか、<code>hamlog_reader.py</code> を新しい版に入れ替えたかを確かめてください。古い版の <code>hamlog_reader.py</code> のまま DXCC代行ワッチと同時に動かすと、この症状が起きます。</p>
+<h3>DXCC 番号が表示されません</h3>
+<p><code>common</code> フォルダに <code>cty_latest.csv</code> があるかを確かめてください。Windows はファイルの拡張子を隠すので、名前を変えたときに <code>cty_latest.csv.csv</code> になっていることがあります。エクスプローラーの「表示」で「ファイル名拡張子」にチェックを入れると確かめられます。</p>
+<h3>モード別に交信済みを判定できますか</h3>
+<p>今の版は、DXCC Mixed と同じく、モードを問わずバンドごとに交信済みかどうかを判定します。モード別の判定は、今後の検討課題です。</p>
+
+<h2>お問い合わせ</h2>
+<p>ご質問は、<a href="mailto:ja1bbe@jarl.com">ja1bbe@jarl.com</a> までお寄せください。起動したときに表示される版（例：cluster_watch 版 0.1.0）を添えていただけると助かります。個人で運営しているため、お返事までにお時間をいただくことがあります。困ったときの AI アシスタントへの尋ね方は、<a href="../step6.html">DXCC代行ワッチの画面6</a>をご覧ください。</p>
+
+<div class="nav"><a class="btn back" href="step3.html">前の画面：試してから起動する</a><a class="btn next" href="https://ja1bbe.wixsite.com/mysite">ホームページに戻る</a></div>
+</main>
+<footer>DXCC代行ワッチ（dxcc-pilot）の追加機能「DXクラスター通知」　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
+</div>
+<script src="../copy.js"></script>
+</body>
+</html>
