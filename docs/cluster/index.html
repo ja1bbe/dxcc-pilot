@@ -74,15 +74,21 @@
 </ul>
 <p>代行ワッチ（WSJT-X との接続）を使わず、DXクラスター通知だけを使う場合も、この3つの画面は必要です。</p>
 
-<h2>ファイルを最新にする</h2>
-<p>GitHub のリポジトリから最新のファイル一式を入手し、<code>C:\dxcc-pilot</code> に上書きします。DXクラスター通知で加わるのは、次のファイルです。</p>
-<div class="cmd tree"><pre>C:\dxcc-pilot\
-  cluster_watch.py      … DXクラスター通知の本体（新規）
-  start_cluster.bat     … 起動用ファイルの見本（新規）
-  settings.ini          … [cluster] の欄が加わりました
-  hamlog_reader.py      … 2つのスクリプトが同時に HAMLOG を読めるよう修正
-  dxcc_notify.py        … HAMLOG を読めなかったときの扱いを修正</pre></div>
-<div class="warn"><p><strong>settings.ini は上書きしない</strong></p><p>すでに自局の値を書き込んだ <code>settings.ini</code> は、上書きすると書き直しになります。新しい <code>settings.ini</code> から、<code>[cluster]</code> 以下の部分だけをコピーして、お手元の <code>settings.ini</code> の末尾に貼り付けてください。</p></div>
+<h2>ファイルを入手する</h2>
+<p>これから DXCC代行ワッチの画面2で初めてスクリプト一式を入手する方は、その中に DXクラスター通知のファイルもすでに含まれているので、この節の作業は不要です。次の「スポットの提供元への配慮」に進んでください。</p>
+<p>すでに DXCC代行ワッチを使っている方は、次の手順で、DXクラスター通知に必要なファイルを加えます。</p>
+<ol>
+<li><a href="https://github.com/ja1bbe/dxcc-pilot/archive/refs/heads/main.zip">スクリプト一式（ZIPファイル）</a>をダウンロードします。</li>
+<li>ダウンロードした <code>dxcc-pilot-main.zip</code> を右クリックし、「すべて展開」を選びます。</li>
+<li>展開してできた <code>dxcc-pilot-main</code> フォルダを開き、次の4つのファイルを選んでコピーし、<code>C:\dxcc-pilot</code> に貼り付けます。「同じ名前のファイルがあります」と表示されたら、「ファイルを置き換える」を選びます。</li></ol>
+<div class="cmd tree"><pre>cluster_watch.py      … DXクラスター通知の本体（新規）
+start_cluster.bat     … 起動用ファイルの見本（新規）
+hamlog_reader.py      … 2つのスクリプトが同時に HAMLOG を読めるよう修正
+dxcc_notify.py        … HAMLOG を読めなかったときの扱いを修正</pre></div>
+<ol start="4">
+<li><code>dxcc-pilot-main</code> フォルダの <code>settings.ini</code> をメモ帳で開き、<code>[cluster]</code> の行から最後までを選んでコピーします。</li>
+<li>お手元の <code>C:\dxcc-pilot\settings.ini</code> をメモ帳で開き、一番最後に貼り付けて、文字コードを「UTF-8」にして保存します。</li></ol>
+<div class="warn"><p><strong>settings.ini はファイルごと置き換えない</strong></p><p><code>settings.ini</code> には、画面3で書き込んだ自局のコールサインやメールアドレスが入っています。ファイルごと置き換えると、それが見本の値に戻ってしまいます。必ず <code>[cluster]</code> 以下の部分だけを貼り付けてください。<code>common</code> フォルダや <code>logs</code> フォルダも、コピーしないでください。</p></div>
 <div class="note"><p><strong>hamlog_reader.py と dxcc_notify.py も入れ替える理由</strong></p><p>古い版のまま2つのスクリプトを同時に動かすと、HAMLOG の読み込みがぶつかって失敗することがあります。失敗すると、ADIF のうちゲスト運用の交信を見分けられず、交信済みが多めに数えられて、未交信の通知が漏れます。新しい版ではこれが起きないようにしてあります。</p></div>
 
 <h2>スポットの提供元への配慮</h2>
@@ -90,7 +96,7 @@
 
 <div class="check"><h2>ここまでの確認</h2><ul>
 <li>DXCC代行ワッチの画面2〜4を済ませ、テストメールが届いている。</li>
-<li><code>C:\dxcc-pilot</code> に <code>cluster_watch.py</code> があり、<code>settings.ini</code> の末尾に <code>[cluster]</code> の欄を加えた。</li></ul></div>
+<li><code>C:\dxcc-pilot</code> に <code>cluster_watch.py</code> があり、<code>settings.ini</code> の末尾に <code>[cluster]</code> の欄がある。</li></ul></div>
 
 <div class="nav"><a class="btn back" href="../index.html">DXCC代行ワッチの手順へ</a><a class="btn next" href="step2.html">次の画面：通知の条件を決める</a></div>
 </main>
