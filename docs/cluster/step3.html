@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>試してから起動する（3／4）｜DXクラスター通知の構築手順（DXCC代行ワッチの追加機能）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>.meter { grid-template-columns: repeat(4, 1fr); }</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="site"><a href="index.html">DXクラスター通知の構築手順（DXCC代行ワッチの追加機能）</a><a href="https://ja1bbe.wixsite.com/mysite">JA1BBE ホームページ</a></div>
+<nav aria-label="手順の進み具合"><ol class="meter"><li class="done"><a href="index.html"><span>全体像</span></a></li><li class="done"><a href="step2.html"><span>通知の条件</span></a></li><li class="now"><a href="step3.html" aria-current="step"><span>試験と起動</span></a></li><li class=""><a href="step4.html"><span>通知の見方</span></a></li></ol></nav>
+</header>
+<main>
+<p class="step">3／4</p>
+<h1>試してから起動する</h1>
+
+<p class="lead">まずメールを送らずに動きを確かめ、次にテストメールを送ってから、本番どおりに起動します。DXCC代行ワッチと同時に動かす方法も説明します。</p>
+
+<h2>メールを送らずに試す</h2>
+<p>コマンドプロンプトで、次のように実行します（HAMLOG の場所は、ご自分の環境に書き換えてください）。</p>
+<div class="cmd"><pre>cd /d C:\dxcc-pilot
+python cluster_watch.py --dry-run --hamlog "C:\Hamlog\HAMLOG.hdb"</pre></div>
+<p>起動すると、次のように表示されます（数字は例です）。</p>
+<div class="cmd out"><pre>cluster_watch 版 0.1.0（dxcc-pilot の追加機能）
+自局: JA1ABC / モード: FT8, CW, SSB / バンド: 160m, 80m, ... / 通知: 全バンド初のみ / 取得先: dxscape, dxsummit
+交信済み: 1520 組（エンティティ×バンド）、エンティティ 248
+[DRY] [クラスター] 🔴全バンド初 30m FT8 TN8GD (Republic of the Congo)</pre></div>
+<p>2行目に、settings.ini で書いた条件がそのまま表示されているか確かめてください。3行目のエンティティの数は、DXCC代行ワッチの開始のメールに出る全バンドの交信数と、ほぼ同じになるはずです。未交信の局がスポットされていれば、「[DRY]」の行で、送るはずだったメールの件名が表示されます。スポットがないときは何も表示されないので、しばらく待ってください。確かめられたら Ctrl＋C で止めます。</p>
+<div class="warn"><p><strong>「HAMLOG を読めないため、30秒後に読み直します」と表示されたとき</strong></p><p>HAMLOG が交信の記録中だったり、ほかのソフトが読んでいたりすると、一時的に読めないことがあります。スクリプトは自動で読み直します。読めないまま交信済みを数えると、ゲスト運用の交信が紛れ込むため、読めるまで待つようにしてあります。何度も続く場合は、<code>--hamlog</code> の場所が正しいかを確かめてください。</p></div>
+
+<h2>テストメールを送る</h2>
+<div class="cmd"><pre>python cluster_watch.py --test</pre></div>
+<p>スマートフォンに「[クラスター] テスト通知」が届けば、メールの経路は大丈夫です。</p>
+
+<h2>起動用のファイルを使う</h2>
+<p><code>C:\dxcc-pilot\start_cluster.bat</code> をメモ帳で開き、HAMLOG の場所の行を、<code>start_dxcc.bat</code> と同じに書き換えます。</p>
+<div class="cmd"><pre>set HAMLOG=C:\Hamlog\HAMLOG.hdb</pre></div>
+<p>デスクトップにショートカットを作っておけば、ダブルクリックで起動できます。止めるときは、そのウィンドウで Ctrl＋C を押すか、ウィンドウを閉じます。</p>
+
+<h2>DXCC代行ワッチと一緒に動かす</h2>
+<p>両方を同時に動かすときは、<code>start_dxcc.bat</code> の <code>python dxcc_notify.py</code> の行の<strong>前に</strong>、次の1行を加えます。</p>
+<div class="cmd"><pre>start "DXCLUSTER" /min python cluster_watch.py --site home --stop-with-wsjtx %HLOPT%</pre></div>
+<p><code>python dxcc_notify.py</code> の行は、止めるまで次の行に進みません。後ろに書くと、DXクラスター通知が始まらないため、必ず前に書きます。<code>start</code> を付けると、最小化した別のウィンドウで動きます。</p>
+<p><code>--stop-with-wsjtx</code> を付けると、WSJT-X を閉じたとき、2〜4分でDXクラスター通知も自動で終わります。代行ワッチのウィンドウで Ctrl＋C を押しても、DXクラスター通知は止まらないので、WSJT-X を開いたまま止めたいときは、タスクバーの「DXCLUSTER」のウィンドウを閉じてください。</p>
+<div class="note"><p><strong>同じ局を両方が知らせることがあります</strong></p><p>受信中のバンドで未交信の局がスポットされると、代行ワッチ（件名「[DXCC]」）とDXクラスター通知（件名「[クラスター]」）の両方からメールが届くことがあります。件名の先頭で見分けられます。</p></div>
+
+<div class="check"><h2>ここまでの確認</h2><ul>
+<li><code>--dry-run</code> で、設定した条件と交信済みの数が正しく表示された。</li>
+<li>テストメールがスマートフォンに届いた。</li>
+<li>起動用のファイル（または <code>start_dxcc.bat</code> の1行）で起動できた。</li></ul></div>
+
+<div class="nav"><a class="btn back" href="step2.html">前の画面：通知の条件を決める</a><a class="btn next" href="step4.html">次の画面：通知の見方とよくある質問</a></div>
+</main>
+<footer>DXCC代行ワッチ（dxcc-pilot）の追加機能「DXクラスター通知」　／　JA1BBE 出野義則　／　<a href="https://github.com/ja1bbe/dxcc-pilot">GitHub リポジトリ</a></footer>
+</div>
+<script src="../copy.js"></script>
+</body>
+</html>
